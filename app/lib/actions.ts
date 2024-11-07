@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+
+// Authentication function
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData
@@ -24,6 +26,8 @@ export async function authenticate(
     throw error;
   }
 }
+
+// Zod Schema for Validation
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string({
@@ -37,6 +41,8 @@ const FormSchema = z.object({
   }),
   date: z.string(),
 });
+
+// Types for the state
 export type State = {
   errors?: {
     customerId?: string[];
@@ -46,8 +52,10 @@ export type State = {
   message?: string | null;
 };
 
+// Omit id and date fields for invoice creation and update
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
+// Create Invoice Function
 export async function createInvoice(prevState: State, formData: FormData) {
   // Validate form using Zod
   const validatedFields = CreateInvoice.safeParse({
@@ -86,6 +94,8 @@ export async function createInvoice(prevState: State, formData: FormData) {
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 }
+
+// Update Invoice Function
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function updateInvoice(id: string, formData: FormData) {
@@ -111,9 +121,8 @@ export async function updateInvoice(id: string, formData: FormData) {
   redirect("/dashboard/invoices");
 }
 
+// Delete Invoice Function
 export async function deleteInvoice(id: string) {
-  throw new Error("Failed to Delete Invoice");
-
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath("/dashboard/invoices");
