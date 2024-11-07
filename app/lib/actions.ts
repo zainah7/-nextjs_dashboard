@@ -52,14 +52,12 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split("T")[0];
 
-  // Test it out:
-  // console.log();
   // Insert data into the database
   try {
     await sql`
         INSERT INTO invoices (customer_id, amount, status, date)
         VALUES (${customerId}, ${amountInCents}, ${status}, ${date})`;
-  } catch (error) {
+  } catch {
     return {
       message: "Database Error: Failed to Create Invoice.",
     };
@@ -72,8 +70,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 // Use Zod to update the expected types
 const UpdateInvoice = InvoiceSchema.omit({ id: true, date: true });
-
-// ...
 
 export async function updateInvoice(
   id: string,
@@ -98,6 +94,7 @@ export async function updateInvoice(
   // Prepare data for insertion into the database
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
+
   // Insert data into the database
   try {
     await sql`
@@ -105,20 +102,20 @@ export async function updateInvoice(
       SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
       WHERE id = ${id}
     `;
-  } catch (error) {
+  } catch {
     return { message: "Database Error: Failed to Update Invoice." };
   }
+
   // Revalidate the cache for the invoices page and redirect the user.
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 }
 
 export async function deleteInvoice(id: string) {
-  // throw new Error('Failed to Delete Invoice');
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath("/dashboard/invoices");
-  } catch (error) {
+  } catch {
     return { message: "Database Error: Failed to Delete Invoice." };
   }
 }

@@ -4,8 +4,13 @@ import { fetchCustomers, fetchInvoiceById } from "@/app/lib/data";
 import { CustomerField, InvoiceForm } from "@/app/lib/definitions";
 import { notFound } from "next/navigation";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = params.id;
+// Define the page component with async function to fetch data
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>; // Ensuring that `params` is a promise
+}) {
+  const { id } = await params; // Await the `params` promise
   const [invoice, customers]: [
     InvoiceForm | undefined,
     CustomerField[] | undefined
